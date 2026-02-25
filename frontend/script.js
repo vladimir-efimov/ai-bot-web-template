@@ -8,14 +8,15 @@ const chatOverlay = document.getElementById('chatOverlay');
 const chatMessages = document.getElementById('chatMessages');
 const chatButtons = document.getElementById('chatButtons');
 
-let chatId = 0;
-// TODO: check use of localStorage.setItem('chatId', chatId);
-
 // Открываем чат
 openChatBtn.addEventListener('click', () => {
     chatOverlay.style.display = 'block';
-    // Отправляем стартовое сообщение
-    sendMessage('start');
+    // Отправляем стартовое сообщение при первом открытии диалога
+    let isStarted = sessionStorage.getItem('started');
+    if (!isStarted) {
+        sendMessage('start');
+        sessionStorage.setItem('started', 'true');
+    }
 });
 
 // Закрываем чат
@@ -32,8 +33,9 @@ async function initChat() {
 
         const data = await response.json();
         if (data.chatId) {
-            chatId = data.chatId;
+            sessionStorage.setItem('chatId', data.chatId);
         }
+        sessionStorage.setItem('started', '');
     } catch (error) {
         console.error('Ошибка при отправке сообщения:', error);
         addMessage('Произошла ошибка при подключении к серверу', 'bot');
@@ -47,6 +49,7 @@ async function sendMessage(buttonText) {
         addMessage(buttonText, 'user');
 
         // Отправка запроса на сервер
+        let chatId = sessionStorage.getItem('chatId');
         const response = await fetch(BASE_URL + '/api/chats/' + chatId, {
             method: 'PUT',
             headers: {
