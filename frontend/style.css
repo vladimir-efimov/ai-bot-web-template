@@ -27,6 +27,9 @@ h1 {
     padding: 10px;
     border-radius: 50%;
     transition: background-color 0.3s;
+    position: fixed; /* Фиксированное позиционирование */
+    bottom: 40px;   /* Отступ снизу */
+    right: 40px;    /* Отступ справа */
 }
 
 .icon-button:hover {
