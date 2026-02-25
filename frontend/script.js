@@ -1,6 +1,5 @@
 
-const BASE_URL = 'http://localhost:8080'; // URL вашего Spring Boot приложения
-//const BASE_URL = 'http://127.0.0.1:8080'; // URL вашего Spring Boot приложения
+const BASE_URL = 'http://localhost:8080'; // URL Spring Boot приложения
 
 // Элементы DOM
 const openChatBtn = document.getElementById('openChat');
@@ -8,6 +7,9 @@ const closeChatBtn = document.getElementById('closeChat');
 const chatOverlay = document.getElementById('chatOverlay');
 const chatMessages = document.getElementById('chatMessages');
 const chatButtons = document.getElementById('chatButtons');
+
+let chatId = 0;
+// TODO: check use of localStorage.setItem('chatId', chatId);
 
 // Открываем чат
 openChatBtn.addEventListener('click', () => {
@@ -24,13 +26,14 @@ closeChatBtn.addEventListener('click', () => {
 async function initChat() {
     try {
         // Отправка запроса на сервер
-        const response = await fetch(BASE_URL + '/api/chat', {
+        const response = await fetch(BASE_URL + '/api/chats', {
             method: 'POST',
         });
 
         const data = await response.json();
-
-        // TODO: Обработка ответа от сервера - extract chat id
+        if (data.chatId) {
+            chatId = data.chatId;
+        }
     } catch (error) {
         console.error('Ошибка при отправке сообщения:', error);
         addMessage('Произошла ошибка при подключении к серверу', 'bot');
@@ -41,11 +44,10 @@ async function initChat() {
 // Функция отправки сообщения на сервер
 async function sendMessage(buttonText) {
     try {
-        // Визуальное отображение отправленного сообщения
         addMessage(buttonText, 'user');
 
         // Отправка запроса на сервер
-        const response = await fetch(BASE_URL + '/api/chat', {
+        const response = await fetch(BASE_URL + '/api/chats/' + chatId, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
