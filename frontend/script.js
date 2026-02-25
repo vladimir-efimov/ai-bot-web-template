@@ -1,3 +1,7 @@
+
+const BASE_URL = 'http://localhost:8080'; // URL вашего Spring Boot приложения
+//const BASE_URL = 'http://127.0.0.1:8080'; // URL вашего Spring Boot приложения
+
 // Элементы DOM
 const openChatBtn = document.getElementById('openChat');
 const closeChatBtn = document.getElementById('closeChat');
@@ -17,6 +21,23 @@ closeChatBtn.addEventListener('click', () => {
     chatOverlay.style.display = 'none';
 });
 
+async function initChat() {
+    try {
+        // Отправка запроса на сервер
+        const response = await fetch(BASE_URL + '/api/chat', {
+            method: 'POST',
+        });
+
+        const data = await response.json();
+
+        // TODO: Обработка ответа от сервера - extract chat id
+    } catch (error) {
+        console.error('Ошибка при отправке сообщения:', error);
+        addMessage('Произошла ошибка при подключении к серверу', 'bot');
+    }
+}
+
+
 // Функция отправки сообщения на сервер
 async function sendMessage(buttonText) {
     try {
@@ -24,19 +45,19 @@ async function sendMessage(buttonText) {
         addMessage(buttonText, 'user');
 
         // Отправка запроса на сервер
-        const response = await fetch('/api/chat', {
-            method: 'POST',
+        const response = await fetch(BASE_URL + '/api/chat', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: buttonText })
+            body: JSON.stringify({ buttonName: buttonText })
         });
 
         const data = await response.json();
 
         // Обработка ответа от сервера
-        if (data.text) {
-            addMessage(data.text, 'bot');
+        if (data.message) {
+            addMessage(data.message, 'bot');
         }
         if (data.buttons) {
             renderButtons(data.buttons);
@@ -73,5 +94,5 @@ function renderButtons(buttons) {
 
 // Инициализация: при открытии чата отправляем стартовое сообщение
 document.addEventListener('DOMContentLoaded', () => {
-    // В реальном приложении здесь может быть инициализация соединения с сервером
+    initChat();
 });
