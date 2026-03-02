@@ -77,10 +77,29 @@ async function sendMessage(buttonText) {
 function addMessage(text, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}-message`;
-    messageDiv.textContent = text;
+    const safeText = escapeHtml(text);
+    const formattedText = markdown2Html(safeText);
+    messageDiv.innerHTML = formattedText;
     chatMessages.appendChild(messageDiv);
     // Прокрутка к последнему сообщению
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function markdown2Html(markdown) {
+  // Конвертируем ссылки и '\n'
+  // Паттерн ищет [текст](ссылка) и заменяет на <a href="ссылка">текст</a>
+  return markdown
+    .replace(/\n/g, '<br>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 }
 
 // Отрисовка кнопок
